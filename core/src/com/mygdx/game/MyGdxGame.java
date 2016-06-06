@@ -70,26 +70,26 @@ public class MyGdxGame extends ApplicationAdapter {
     @Override
 	public void create () {
 		batch = new SpriteBatch();
-        Texture sheet = new Texture("tiles.png");
-        TextureRegion[][] tiles = TextureRegion.split(sheet, 16, 16);
+        Texture tiles = new Texture("tiles.png");
+        TextureRegion[][] grid = TextureRegion.split(tiles, 16, 16);
 
         //Down
-        downFacing = tiles[6][0];
+        downFacing = grid[6][0];
         down = new TextureRegion(downFacing);
         downFacing.flip(true,false);
         walkDown = new Animation(0.2f, downFacing, down);
 
         //Up
-        upFacing = tiles[6][1];
+        upFacing = grid[6][1];
         up = new TextureRegion(upFacing);
         up.flip(true,false);
         walkUp = new Animation(0.2f, upFacing, up);
 
         //Right
-        rightFacing = tiles[6][2];
+        rightFacing = grid[6][2];
         right = new TextureRegion(rightFacing);
         right.flip(true,false);
-        walkRight = new Animation(0.2f,rightFacing, tiles[6][4]);
+        walkRight = new Animation(0.2f,rightFacing, grid[6][4]);
 
         //Left
         leftFacing = new TextureRegion(rightFacing);
@@ -98,20 +98,20 @@ public class MyGdxGame extends ApplicationAdapter {
 
         //Zombie
         //Down
-        zDownFacing = tiles[6][5];
+        zDownFacing = grid[6][5];
         zDown = new TextureRegion(zDownFacing);
         zDownFacing.flip(true,false);
         zWalkDown = new Animation(0.2f, zDownFacing, zDown);
         //Up
-        zUpFacing = tiles[6][6];
+        zUpFacing = grid[6][6];
         zUp = new TextureRegion(zUpFacing);
         zUp.flip(true,false);
         zWalkUp = new Animation(0.2f, zUpFacing, zUp);
         //Right
-        zRightFacing = tiles[6][7];
+        zRightFacing = grid[6][7];
         zRight = new TextureRegion(zRightFacing);
         zRight.flip(true,false);
-        zWalkRight = new Animation(0.2f,zRightFacing, tiles[6][7]);
+        zWalkRight = new Animation(0.2f,zRightFacing, grid[6][7]);
         //Left
         zLeftFacing = new TextureRegion(zRightFacing);
         zLeft.flip(true,false);
