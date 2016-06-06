@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 
 import java.util.Random;
 
@@ -22,18 +24,11 @@ public class MyGdxGame extends ApplicationAdapter {
     TextureRegion up;
     TextureRegion left;
     TextureRegion right;
+    TextureRegion zombieImg;
 
-    //Zombie
-    TextureRegion zRightFacing;
-    TextureRegion zUpFacing;
-    TextureRegion zDownFacing;
-    TextureRegion zLeftFacing;
-    TextureRegion zPositionImg;
-    TextureRegion zDown;
-    TextureRegion zUp;
-    TextureRegion zLeft;
-    TextureRegion zRight;
-    TextureRegion spawnZombie;
+    Rectangle zombie;
+    long lastZombieTime;
+
 
     //Landscape
     TextureRegion tree;
@@ -48,12 +43,6 @@ public class MyGdxGame extends ApplicationAdapter {
     Animation walkDown;
     Animation walkLeft;
 
-    Animation zWalkRight;
-    Animation zWalkLeft;
-    Animation zWalkDown;
-    Animation zWalkUp;
-    Animation zWalk;
-
 
     static final int WIDTH = 16;
     static final int HEIGHT = 20;
@@ -61,17 +50,17 @@ public class MyGdxGame extends ApplicationAdapter {
     static final float DECELERATION = 0.95f;
     static final float SUPER_VELOCITY = 300;
     float time;
-    float zTime;
+
 
     Random random = new Random();
     int img;
-    int zImg;
     TextureRegion positionImg;
 
     @Override
 	public void create () {
 		batch = new SpriteBatch();
         Texture tiles = new Texture("tiles.png");
+
         TextureRegion[][] grid = TextureRegion.split(tiles, 16, 16);
 
         //Down
@@ -97,80 +86,65 @@ public class MyGdxGame extends ApplicationAdapter {
         leftFacing.flip(true,false);
         walkLeft = new Animation(0.2f,leftFacing, left);
 
-        //Zombie
-        //Down
-        zDownFacing = grid[6][5];
-        //zDown = new TextureRegion(zDownFacing);
-        //zDownFacing.flip(true,false);
-        //zWalkDown = new Animation(0.2f, zDownFacing, zDown);
-        //Up
-        zUpFacing = grid[6][6];
-        //zUp = new TextureRegion(zUpFacing);
-        //zUp.flip(true,false);
-        //zWalkUp = new Animation(0.2f, zUpFacing, zUp);
-        //Right
-        zRightFacing = grid[6][7];
-        //zRight = new TextureRegion(zRightFacing);
-        //zRight.flip(true,false);
-        //zWalkRight = new Animation(0.2f,zRightFacing, grid[6][7]);
-        //Left
-        zLeftFacing = new TextureRegion(zRightFacing);
-        zLeftFacing.flip(true,false);
-        //zWalkLeft = new Animation(0.2f,zLeftFacing, zLeft);
-        zWalk = new Animation(0.2f, grid[6][5], grid[6][6], grid[6][7]);
-
+        zombieImg = grid[6][5];
+        zombie = new Rectangle();
+        spawnZombie();
 
 	}
+    public void spawnZombie() {
+        Rectangle zombie = new Rectangle();
+        zombie.x = MathUtils.random();
+        zombie.y = MathUtils.random();
+        zombie.width = WIDTH;
+        zombie.height = HEIGHT;
+    }
 
 	@Override
 	public void render () {
         move();
 
         time += Gdx.graphics.getDeltaTime();
-        zTime -= Gdx.graphics.getDeltaTime();
 
         if (yv > 0) {
             upFacing = walkUp.getKeyFrame(time, true);
-            //zUpFacing = zWalkUp.getKeyFrame(time, true);
-            zUpFacing = zWalk.getKeyFrame(zTime,true);
+
         }
         if (yv < 0) {
             downFacing = walkDown.getKeyFrame(time, true);
-            //zDownFacing = zWalkDown.getKeyFrame(time, true);
-            zDownFacing = zWalk.getKeyFrame(zTime, true);
+
         }
         if (xv > 0) {
             rightFacing = walkRight.getKeyFrame(time, true);
-            //zRightFacing = zWalkRight.getKeyFrame(time, true);
-            zRightFacing = zWalk.getKeyFrame(zTime, true);
+
         }
         if (xv < 0) {
             leftFacing = walkLeft.getKeyFrame(time, true);
-            //zLeftFacing = zWalkLeft.getKeyFrame(time,true);
-            zLeftFacing = zWalk.getKeyFrame(zTime,true);
+
         }
 
 
         Gdx.gl.glClearColor(0, .5f, 0, .6f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        Rectangle zombie = new Rectangle();
+
         batch.begin();
 
-        if (img == 1 && zImg == 1){
+        if (img == 1){
             positionImg = upFacing;
-            zPositionImg = zUpFacing;
+
         }
-        if (img == 2 && zImg == 2) {
+        if (img == 2) {
             positionImg = downFacing;
-            zPositionImg = zDownFacing;
+
         }
-        if (img == 3 && zImg == 3) {
+        if (img == 3) {
             positionImg = rightFacing;
-            zPositionImg = zDownFacing;
+
         }
         else {
             positionImg = leftFacing;
-            zPositionImg = zLeftFacing;
+
         }
         batch.draw(positionImg, x, y, HEIGHT * 2, WIDTH * 2);
         batch.end();
@@ -184,7 +158,6 @@ public class MyGdxGame extends ApplicationAdapter {
                 yv = SUPER_VELOCITY;
             }
             img = 1;
-            zImg = 1;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)){
             yv = -MAX_VELOCITY;
@@ -192,7 +165,6 @@ public class MyGdxGame extends ApplicationAdapter {
                 yv = -SUPER_VELOCITY;
             }
             img = 2;
-            zImg = 2;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             xv = MAX_VELOCITY;
@@ -200,7 +172,6 @@ public class MyGdxGame extends ApplicationAdapter {
                 xv = SUPER_VELOCITY;
             }
             img = 3;
-            zImg = 3;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             xv = -MAX_VELOCITY;
@@ -208,7 +179,6 @@ public class MyGdxGame extends ApplicationAdapter {
                 xv = -SUPER_VELOCITY;
             }
             img = 4;
-            zImg = 4;
         }
         if(x>Gdx.graphics.getWidth()){
             x = -10;
