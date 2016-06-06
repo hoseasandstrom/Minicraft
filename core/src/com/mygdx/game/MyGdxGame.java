@@ -55,12 +55,13 @@ public class MyGdxGame extends ApplicationAdapter {
     Animation zWalk;
 
 
-    static final int WIDTH = 18;
+    static final int WIDTH = 16;
     static final int HEIGHT = 20;
     static final float MAX_VELOCITY = 100;
     static final float DECELERATION = 0.95f;
     static final float SUPER_VELOCITY = 300;
     float time;
+    float zTime;
 
     Random random = new Random();
     int img;
@@ -118,6 +119,7 @@ public class MyGdxGame extends ApplicationAdapter {
         //zWalkLeft = new Animation(0.2f,zLeftFacing, zLeft);
         zWalk = new Animation(0.2f, grid[6][5], grid[6][6], grid[6][7]);
 
+
 	}
 
 	@Override
@@ -125,26 +127,27 @@ public class MyGdxGame extends ApplicationAdapter {
         move();
 
         time += Gdx.graphics.getDeltaTime();
+        zTime -= Gdx.graphics.getDeltaTime();
 
         if (yv > 0) {
             upFacing = walkUp.getKeyFrame(time, true);
             //zUpFacing = zWalkUp.getKeyFrame(time, true);
-            zUpFacing = zWalk.getKeyFrame(time,true);
+            zUpFacing = zWalk.getKeyFrame(zTime,true);
         }
         if (yv < 0) {
             downFacing = walkDown.getKeyFrame(time, true);
             //zDownFacing = zWalkDown.getKeyFrame(time, true);
-            zDownFacing = zWalk.getKeyFrame(time, true);
+            zDownFacing = zWalk.getKeyFrame(zTime, true);
         }
         if (xv > 0) {
             rightFacing = walkRight.getKeyFrame(time, true);
             //zRightFacing = zWalkRight.getKeyFrame(time, true);
-            zRightFacing = zWalk.getKeyFrame(time, true);
+            zRightFacing = zWalk.getKeyFrame(zTime, true);
         }
         if (xv < 0) {
             leftFacing = walkLeft.getKeyFrame(time, true);
             //zLeftFacing = zWalkLeft.getKeyFrame(time,true);
-            zLeftFacing = zWalk.getKeyFrame(time,true);
+            zLeftFacing = zWalk.getKeyFrame(zTime,true);
         }
 
 
@@ -169,7 +172,7 @@ public class MyGdxGame extends ApplicationAdapter {
             positionImg = leftFacing;
             zPositionImg = zLeftFacing;
         }
-        batch.draw(positionImg, x, y, HEIGHT * 3, WIDTH * 3);
+        batch.draw(positionImg, x, y, HEIGHT * 2, WIDTH * 2);
         batch.end();
     }
 
