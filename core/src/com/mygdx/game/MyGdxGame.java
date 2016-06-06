@@ -8,10 +8,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.sun.corba.se.impl.oa.poa.ActiveObjectMap;
-import sun.jvm.hotspot.memory.Space;
 
 import java.util.Random;
 
@@ -22,7 +18,6 @@ public class MyGdxGame extends ApplicationAdapter {
     TextureRegion upFacing;
     TextureRegion downFacing;
     TextureRegion leftFacing;
-    TextureRegion positionImg;
     TextureRegion down;
     TextureRegion up;
     TextureRegion left;
@@ -38,10 +33,13 @@ public class MyGdxGame extends ApplicationAdapter {
     TextureRegion zUp;
     TextureRegion zLeft;
     TextureRegion zRight;
-
+    TextureRegion spawnZombie;
 
     //Landscape
-    TextureRegion tree, cactus, water, sandpit;
+    TextureRegion tree;
+    TextureRegion cactus;
+    TextureRegion water;
+    TextureRegion sandpit;
 
 
     float x, y, xv, yv;
@@ -54,6 +52,7 @@ public class MyGdxGame extends ApplicationAdapter {
     Animation zWalkLeft;
     Animation zWalkDown;
     Animation zWalkUp;
+    Animation zWalk;
 
 
     static final int WIDTH = 18;
@@ -66,6 +65,7 @@ public class MyGdxGame extends ApplicationAdapter {
     Random random = new Random();
     int img;
     int zImg;
+    TextureRegion positionImg;
 
     @Override
 	public void create () {
@@ -76,20 +76,20 @@ public class MyGdxGame extends ApplicationAdapter {
         //Down
         downFacing = grid[6][0];
         down = new TextureRegion(downFacing);
-        downFacing.flip(true,false);
-        walkDown = new Animation(0.2f, downFacing, down);
+        down.flip(true,false);
+        walkDown = new Animation(0.2f, grid[6][0], down);
 
         //Up
         upFacing = grid[6][1];
         up = new TextureRegion(upFacing);
         up.flip(true,false);
-        walkUp = new Animation(0.2f, upFacing, up);
+        walkUp = new Animation(0.2f, grid[6][1], up);
 
         //Right
         rightFacing = grid[6][2];
         right = new TextureRegion(rightFacing);
         right.flip(true,false);
-        walkRight = new Animation(0.2f,rightFacing, grid[6][4]);
+        walkRight = new Animation(0.2f, grid[6][2], grid[6][3]);
 
         //Left
         leftFacing = new TextureRegion(rightFacing);
@@ -99,69 +99,75 @@ public class MyGdxGame extends ApplicationAdapter {
         //Zombie
         //Down
         zDownFacing = grid[6][5];
-        zDown = new TextureRegion(zDownFacing);
-        zDownFacing.flip(true,false);
-        zWalkDown = new Animation(0.2f, zDownFacing, zDown);
+        //zDown = new TextureRegion(zDownFacing);
+        //zDownFacing.flip(true,false);
+        //zWalkDown = new Animation(0.2f, zDownFacing, zDown);
         //Up
         zUpFacing = grid[6][6];
-        zUp = new TextureRegion(zUpFacing);
-        zUp.flip(true,false);
-        zWalkUp = new Animation(0.2f, zUpFacing, zUp);
+        //zUp = new TextureRegion(zUpFacing);
+        //zUp.flip(true,false);
+        //zWalkUp = new Animation(0.2f, zUpFacing, zUp);
         //Right
         zRightFacing = grid[6][7];
-        zRight = new TextureRegion(zRightFacing);
-        zRight.flip(true,false);
-        zWalkRight = new Animation(0.2f,zRightFacing, grid[6][7]);
+        //zRight = new TextureRegion(zRightFacing);
+        //zRight.flip(true,false);
+        //zWalkRight = new Animation(0.2f,zRightFacing, grid[6][7]);
         //Left
         zLeftFacing = new TextureRegion(zRightFacing);
-        zLeft.flip(true,false);
-        zWalkLeft = new Animation(0.2f,zLeftFacing, zLeft);
+        zLeftFacing.flip(true,false);
+        //zWalkLeft = new Animation(0.2f,zLeftFacing, zLeft);
+        zWalk = new Animation(0.2f, grid[6][5], grid[6][6], grid[6][7]);
 
 	}
 
 	@Override
 	public void render () {
-
         move();
 
         time += Gdx.graphics.getDeltaTime();
 
         if (yv > 0) {
             upFacing = walkUp.getKeyFrame(time, true);
-            zUpFacing = zWalkUp.getKeyFrame(time, true);
+            //zUpFacing = zWalkUp.getKeyFrame(time, true);
+            zUpFacing = zWalk.getKeyFrame(time,true);
         }
         if (yv < 0) {
             downFacing = walkDown.getKeyFrame(time, true);
-            zDownFacing = zWalkDown.getKeyFrame(time, true);
+            //zDownFacing = zWalkDown.getKeyFrame(time, true);
+            zDownFacing = zWalk.getKeyFrame(time, true);
         }
         if (xv > 0) {
             rightFacing = walkRight.getKeyFrame(time, true);
-            zRightFacing = zWalkRight.getKeyFrame(time, true);
+            //zRightFacing = zWalkRight.getKeyFrame(time, true);
+            zRightFacing = zWalk.getKeyFrame(time, true);
         }
         if (xv < 0) {
             leftFacing = walkLeft.getKeyFrame(time, true);
-            zLeftFacing = zWalkLeft.getKeyFrame(time,true);
+            //zLeftFacing = zWalkLeft.getKeyFrame(time,true);
+            zLeftFacing = zWalk.getKeyFrame(time,true);
         }
 
 
         Gdx.gl.glClearColor(0, .5f, 0, .6f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        //batch.begin();
-       // batch.draw(tree, 500, 500);
-        //batch.end();
+
         batch.begin();
 
-        if (img == 1){
+        if (img == 1 && zImg == 1){
             positionImg = upFacing;
+            zPositionImg = zUpFacing;
         }
-        if (img == 2) {
+        if (img == 2 && zImg == 2) {
             positionImg = downFacing;
+            zPositionImg = zDownFacing;
         }
-        if (img == 3) {
+        if (img == 3 && zImg == 3) {
             positionImg = rightFacing;
+            zPositionImg = zDownFacing;
         }
         else {
             positionImg = leftFacing;
+            zPositionImg = zLeftFacing;
         }
         batch.draw(positionImg, x, y, HEIGHT * 3, WIDTH * 3);
         batch.end();
@@ -202,16 +208,16 @@ public class MyGdxGame extends ApplicationAdapter {
             zImg = 4;
         }
         if(x>Gdx.graphics.getWidth()){
-            x = -5;
+            x = -10;
         }
         if(x<-5){
             x = Gdx.graphics.getWidth();
         }
-        if(y<-5){
+        if(y<-10){
             y = Gdx.graphics.getHeight();
         }
         if (y>Gdx.graphics.getHeight()){
-            y=-5;
+            y=-10;
         }
         if((x>=1000 && x<=1000) && (y<=1000 && y>=1000)){
             x = 0;
